@@ -3,6 +3,7 @@ export interface BCSalesOrder {
   No: string;
   SellToCustomerNo: string;
   SellToCustomerName: string;
+  BillToName: string;
   OrderDate: string;
   DocumentDate: string;
   RequestedDeliveryDate: string;
@@ -24,13 +25,12 @@ export interface BCSalesOrder {
 export interface SalesOrder {
   id: string;
   customerName: string;
+  billToName: string;
   orderNumber: string;
   priority: 'P1' | 'P2' | 'P3' | 'P4';
   createdDate: string;
   deliveryNotes: string;
   dueDate?: string;
-  status: string;
-  totalAmount: number;
   reference?: string;
   shipToCity?: string;
   shipToState?: string;

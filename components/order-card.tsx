@@ -25,19 +25,15 @@ export function OrderCard({ order }: OrderCardProps) {
 
   const daysUntilDue = getDaysUntilDue(order.dueDate);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900">{order.customerName}</h3>
           <p className="text-sm text-gray-500">Order: {order.orderNumber}</p>
+          {order.billToName && (
+            <p className="text-sm text-gray-600 mt-1">Bill To: {order.billToName}</p>
+          )}
           {order.reference && (
             <p className="text-xs text-gray-400 mt-1">Ref: {order.reference}</p>
           )}
@@ -68,16 +64,6 @@ export function OrderCard({ order }: OrderCardProps) {
             </div>
           </div>
         )}
-
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Status:</span>
-          <span className="text-gray-900 font-medium">{order.status}</span>
-        </div>
-
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Total:</span>
-          <span className="text-gray-900 font-semibold">{formatCurrency(order.totalAmount)}</span>
-        </div>
 
         {(order.shipToCity || order.shipToState) && (
           <div className="flex justify-between text-sm">

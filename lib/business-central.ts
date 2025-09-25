@@ -69,6 +69,7 @@ export function transformBCOrder(bcOrder: BCSalesOrder): SalesOrder {
   return {
     id: bcOrder.SystemId,
     customerName: bcOrder.SellToCustomerName,
+    billToName: bcOrder.BillToName || '',
     orderNumber: bcOrder.No,
     priority: priorityMap[bcOrder.Priority] || 'P3',
     createdDate: bcOrder.OrderDate || bcOrder.DocumentDate,
@@ -78,8 +79,6 @@ export function transformBCOrder(bcOrder: BCSalesOrder): SalesOrder {
       : bcOrder.ShipmentDate !== '0001-01-01'
         ? bcOrder.ShipmentDate
         : undefined,
-    status: bcOrder.OrderStatus || bcOrder.Status,
-    totalAmount: bcOrder.TotalInclTax,
     reference: bcOrder.YourReference,
     shipToCity: bcOrder.ShipToCity,
     shipToState: bcOrder.ShipToCounty
