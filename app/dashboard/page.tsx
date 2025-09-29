@@ -59,6 +59,8 @@ export default function DashboardPage() {
           <PriorityFilter
             selectedPriorities={selectedPriorities}
             onPriorityChange={setSelectedPriorities}
+            onRefresh={fetchOrders}
+            isRefreshing={isRefreshing}
           />
         </div>
 
