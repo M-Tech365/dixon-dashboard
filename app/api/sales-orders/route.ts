@@ -11,8 +11,7 @@ const mockOrders: SalesOrder[] = [
     orderNumber: 'SO-2024-001',
     priority: 'P2',
     createdDate: '2024-01-15',
-    deliveryNotes: 'Customer needs by end of week for production line',
-    dueDate: '2024-01-19',
+    cfiDeliveryNotes: 'Customer needs by end of week for production line',
     shipToCity: 'Des Moines',
     shipToState: 'IA'
   },
@@ -23,8 +22,7 @@ const mockOrders: SalesOrder[] = [
     orderNumber: 'SO-2024-002',
     priority: 'P3',
     createdDate: '2024-01-16',
-    deliveryNotes: 'Regular maintenance - flexible timeline',
-    dueDate: '2024-01-25',
+    cfiDeliveryNotes: 'Regular maintenance - flexible timeline',
     shipToCity: 'Ankeny',
     shipToState: 'IA'
   },
@@ -35,8 +33,7 @@ const mockOrders: SalesOrder[] = [
     orderNumber: 'SO-2024-003',
     priority: 'P2',
     createdDate: '2024-01-17',
-    deliveryNotes: 'Critical repair needed ASAP',
-    dueDate: '2024-01-18',
+    cfiDeliveryNotes: 'Critical repair needed ASAP',
     shipToCity: 'Waukee',
     shipToState: 'IA'
   },
@@ -47,8 +44,7 @@ const mockOrders: SalesOrder[] = [
     orderNumber: 'SO-2024-004',
     priority: 'P4',
     createdDate: '2024-01-18',
-    deliveryNotes: 'Scheduled maintenance for next month',
-    dueDate: '2024-02-15',
+    cfiDeliveryNotes: 'Scheduled maintenance for next month',
     shipToCity: 'West Des Moines',
     shipToState: 'IA'
   }

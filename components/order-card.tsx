@@ -14,16 +14,6 @@ export function OrderCard({ order }: OrderCardProps) {
     });
   };
 
-  const getDaysUntilDue = (dueDate?: string) => {
-    if (!dueDate || dueDate === '0001-01-01') return null;
-    const now = new Date();
-    const due = new Date(dueDate);
-    const diffTime = due.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const daysUntilDue = getDaysUntilDue(order.dueDate);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
@@ -47,24 +37,6 @@ export function OrderCard({ order }: OrderCardProps) {
           <span className="text-gray-900">{formatDate(order.createdDate)}</span>
         </div>
 
-        {order.dueDate && order.dueDate !== '0001-01-01' && (
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Due:</span>
-            <div className="text-right">
-              <span className="text-gray-900">{formatDate(order.dueDate)}</span>
-              {daysUntilDue !== null && (
-                <span className={`ml-2 text-xs font-medium ${
-                  daysUntilDue <= 2 ? 'text-red-600' :
-                  daysUntilDue <= 7 ? 'text-yellow-600' :
-                  'text-green-600'
-                }`}>
-                  ({daysUntilDue} days)
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
         {(order.shipToCity || order.shipToState) && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Ship To:</span>
@@ -75,10 +47,10 @@ export function OrderCard({ order }: OrderCardProps) {
         )}
       </div>
 
-      {order.deliveryNotes && (
+      {order.cfiDeliveryNotes && (
         <div className="mt-4 p-3 bg-gray-50 rounded">
           <p className="text-sm font-medium text-gray-700 mb-1">Delivery Notes:</p>
-          <p className="text-sm text-gray-600">{order.deliveryNotes}</p>
+          <p className="text-sm text-gray-600">{order.cfiDeliveryNotes}</p>
         </div>
       )}
     </div>
