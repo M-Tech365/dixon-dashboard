@@ -57,7 +57,7 @@ export async function getAccessToken(): Promise<string> {
   return data.access_token;
 }
 
-export function transformBCOrder(bcOrder: BCSalesOrder): SalesOrder {
+export function transformBCOrder(bcOrder: BCSalesOrder): SalesOrder | null {
   // Map Priority field (assuming format like "1", "2", "3", "4")
   const priorityMap: { [key: string]: 'P1' | 'P2' | 'P3' | 'P4' } = {
     '1': 'P1',
@@ -66,12 +66,19 @@ export function transformBCOrder(bcOrder: BCSalesOrder): SalesOrder {
     '4': 'P4'
   };
 
+  const priority = priorityMap[bcOrder.Priority];
+
+  // Return null if priority is blank/invalid - will be filtered out
+  if (!priority) {
+    return null;
+  }
+
   return {
     id: bcOrder.SystemId,
     customerName: bcOrder.SellToCustomerName,
     billToName: bcOrder.BillToName || '',
     orderNumber: bcOrder.No,
-    priority: priorityMap[bcOrder.Priority] || 'P3',
+    priority: priority,
     createdDate: bcOrder.OrderDate || bcOrder.DocumentDate,
     requestedDeliveryDate: bcOrder.RequestedDeliveryDate,
     cfiDeliveryNotes: bcOrder.CFIDeliveryNotes || '',
@@ -117,6 +124,7 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
 
   const orders = bcOrders
     .map(transformBCOrder)
+    .filter((order): order is SalesOrder => order !== null) // Filter out null orders (blank priorities)
     .filter(order => order.priority !== 'P1') // Filter out P1 orders
     .sort((a, b) => {
       // Sort by priority first (P2, P3, P4)
