@@ -58,6 +58,10 @@ export async function getAccessToken(): Promise<string> {
 
   const data: TokenResponse = await response.json();
 
+  console.log('Token obtained successfully');
+  console.log('Token expires in:', data.expires_in, 'seconds');
+  console.log('Token preview:', data.access_token.substring(0, 50) + '...');
+
   // Cache the token with a buffer of 5 minutes before expiry
   cachedToken = {
     token: data.access_token,
@@ -112,6 +116,7 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   const apiUrl = `${baseUrl}/${tenantId}/${environment}/ODataV4/Company('${companyName}')/Sales_Order_VT?$filter=LocationCode eq 'DIXON'`;
 
   console.log('Fetching from:', apiUrl);
+  console.log('Using token preview:', accessToken.substring(0, 50) + '...');
 
   const response = await fetch(apiUrl, {
     headers: {
@@ -123,6 +128,8 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   if (!response.ok) {
     const errorText = await response.text();
     console.error('API error response:', errorText);
+    console.error('Response status:', response.status, response.statusText);
+    console.error('Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries())));
     throw new Error(`Failed to fetch sales orders: ${response.statusText}`);
   }
 
@@ -130,11 +137,6 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   const bcOrders: BCSalesOrder[] = data.value || [];
 
   console.log(`Received ${bcOrders.length} orders from Business Central`);
-
-  // Log priority values to debug
-  bcOrders.forEach(order => {
-    console.log(`Order ${order.No}: Priority="${order.Priority}" LocationCode="${order.LocationCode || 'N/A'}"`);
-  });
 
   // Transform BC orders to our format and filter
   const priorityOrder = { 'P2': 1, 'P3': 2, 'P4': 3, 'P1': 4 };
