@@ -32,10 +32,12 @@ export function OrderCard({ order }: OrderCardProps) {
       </div>
 
       <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Created:</span>
-          <span className="text-gray-900">{formatDate(order.createdDate)}</span>
-        </div>
+        {order.requestedDeliveryDate && order.requestedDeliveryDate !== '0001-01-01' && (
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Requested Delivery:</span>
+            <span className="text-gray-900">{formatDate(order.requestedDeliveryDate)}</span>
+          </div>
+        )}
 
         {(order.shipToCity || order.shipToState) && (
           <div className="flex justify-between text-sm">
@@ -48,9 +50,9 @@ export function OrderCard({ order }: OrderCardProps) {
       </div>
 
       {order.cfiDeliveryNotes && (
-        <div className="mt-4 p-3 bg-gray-50 rounded">
-          <p className="text-sm font-medium text-gray-700 mb-1">Delivery Notes:</p>
-          <p className="text-sm text-gray-600">{order.cfiDeliveryNotes}</p>
+        <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-100">
+          <p className="text-sm font-semibold text-blue-900 mb-1">Delivery Notes:</p>
+          <p className="text-sm text-blue-800">{order.cfiDeliveryNotes}</p>
         </div>
       )}
     </div>

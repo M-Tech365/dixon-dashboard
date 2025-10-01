@@ -73,6 +73,7 @@ export function transformBCOrder(bcOrder: BCSalesOrder): SalesOrder {
     orderNumber: bcOrder.No,
     priority: priorityMap[bcOrder.Priority] || 'P3',
     createdDate: bcOrder.OrderDate || bcOrder.DocumentDate,
+    requestedDeliveryDate: bcOrder.RequestedDeliveryDate,
     cfiDeliveryNotes: bcOrder.CFIDeliveryNotes || '',
     reference: bcOrder.YourReference,
     shipToCity: bcOrder.ShipToCity,

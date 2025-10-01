@@ -29,6 +29,7 @@ export interface SalesOrder {
   orderNumber: string;
   priority: 'P1' | 'P2' | 'P3' | 'P4';
   createdDate: string;
+  requestedDeliveryDate?: string;
   cfiDeliveryNotes: string;
   reference?: string;
   shipToCity?: string;
