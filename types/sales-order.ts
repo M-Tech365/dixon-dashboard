@@ -11,6 +11,7 @@ export interface BCSalesOrder {
   Status: string;
   OrderStatus: string;
   Priority: string;
+  LocationCode: string;
   CFIDeliveryNotes: string;
   CFIInternalNotes: string;
   CFIExternalNotes: string;

@@ -11,6 +11,7 @@ let cachedToken: { token: string; expiresAt: number } | null = null;
 export async function getAccessToken(): Promise<string> {
   // Check if we have a valid cached token
   if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    console.log('Using cached token');
     return cachedToken.token;
   }
 
@@ -18,6 +19,12 @@ export async function getAccessToken(): Promise<string> {
   const clientId = process.env.BC_CLIENT_ID;
   const clientSecret = process.env.BC_CLIENT_SECRET;
   const scope = process.env.BC_SCOPE || 'https://api.businesscentral.dynamics.com/.default';
+
+  console.log('Getting new access token...');
+  console.log('Tenant ID:', tenantId);
+  console.log('Client ID:', clientId);
+  console.log('Client Secret present:', !!clientSecret);
+  console.log('Scope:', scope);
 
   if (!tenantId || !clientId || !clientSecret) {
     throw new Error('Business Central credentials not configured');
@@ -32,6 +39,8 @@ export async function getAccessToken(): Promise<string> {
     scope: scope
   });
 
+  console.log('Token URL:', tokenUrl);
+
   const response = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
@@ -43,6 +52,7 @@ export async function getAccessToken(): Promise<string> {
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Token error response:', errorText);
+    console.error('Response status:', response.status, response.statusText);
     throw new Error(`Failed to get access token: ${response.statusText}`);
   }
 
@@ -119,21 +129,30 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   const data = await response.json();
   const bcOrders: BCSalesOrder[] = data.value || [];
 
+  console.log(`Received ${bcOrders.length} orders from Business Central`);
+
+  // Log priority values to debug
+  bcOrders.forEach(order => {
+    console.log(`Order ${order.No}: Priority="${order.Priority}" LocationCode="${order.LocationCode || 'N/A'}"`);
+  });
+
   // Transform BC orders to our format and filter
   const priorityOrder = { 'P2': 1, 'P3': 2, 'P4': 3, 'P1': 4 };
 
-  const orders = bcOrders
-    .map(transformBCOrder)
-    .filter((order): order is SalesOrder => order !== null) // Filter out null orders (blank priorities)
-    .filter(order => order.priority !== 'P1') // Filter out P1 orders
-    .sort((a, b) => {
-      // Sort by priority first (P2, P3, P4)
-      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
-      if (priorityDiff !== 0) return priorityDiff;
+  const transformed = bcOrders.map(transformBCOrder);
+  const withPriority = transformed.filter((order): order is SalesOrder => order !== null);
+  const withoutP1 = withPriority.filter(order => order.priority !== 'P1');
 
-      // Then by creation date (oldest first within each priority)
-      return new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime();
-    });
+  console.log(`After transformation: ${transformed.length} total, ${withPriority.length} with valid priority, ${withoutP1.length} after filtering P1`);
+
+  const orders = withoutP1.sort((a, b) => {
+    // Sort by priority first (P2, P3, P4)
+    const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+    if (priorityDiff !== 0) return priorityDiff;
+
+    // Then by creation date (oldest first within each priority)
+    return new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime();
+  });
 
   return orders;
 }
