@@ -113,7 +113,8 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   // URL encode the company name
   const companyName = encodeURIComponent(companyId);
 
-  const apiUrl = `${baseUrl}/${tenantId}/${environment}/ODataV4/Company('${companyName}')/Sales_Order_VT?$filter=LocationCode eq 'DIXON'`;
+  // Fetch all orders - filter client-side to avoid BC OData view issues
+  const apiUrl = `${baseUrl}/${tenantId}/${environment}/ODataV4/Company('${companyName}')/Sales_Order_VT`;
 
   console.log('Fetching from:', apiUrl);
   console.log('Using token preview:', accessToken.substring(0, 50) + '...');
@@ -133,19 +134,48 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
     throw new Error(`Failed to fetch sales orders: ${response.statusText}`);
   }
 
-  const data = await response.json();
+  // Get raw text first to inspect
+  const rawText = await response.text();
+
+  // Look for SO0400487 in raw response
+  const so487Match = rawText.match(/"No":"SO0400487".*?"Priority":"([^"]*?)"/);
+  if (so487Match) {
+    console.log('SO0400487 in RAW response - Priority:', JSON.stringify(so487Match[1]), 'Length:', so487Match[1].length);
+  }
+
+  const data = JSON.parse(rawText);
   const bcOrders: BCSalesOrder[] = data.value || [];
 
   console.log(`Received ${bcOrders.length} orders from Business Central`);
+
+  // Find SO0400487 specifically
+  const so487 = bcOrders.find(o => o.No === 'SO0400487');
+  if (so487) {
+    console.log('SO0400487 after parsing - Priority:', JSON.stringify(so487.Priority), 'Length:', so487.Priority?.length);
+  } else {
+    console.log('SO0400487 NOT FOUND in BC response');
+  }
+
+  console.log('Sample of orders with priorities:', JSON.stringify(bcOrders.filter(o => o.Priority && o.Priority.trim()).map(o => ({
+    No: o.No,
+    Priority: o.Priority
+  })), null, 2));
 
   // Transform BC orders to our format and filter
   const priorityOrder = { 'P2': 1, 'P3': 2, 'P4': 3, 'P1': 4 };
 
   const transformed = bcOrders.map(transformBCOrder);
   const withPriority = transformed.filter((order): order is SalesOrder => order !== null);
-  const withoutP1 = withPriority.filter(order => order.priority !== 'P1');
 
-  console.log(`After transformation: ${transformed.length} total, ${withPriority.length} with valid priority, ${withoutP1.length} after filtering P1`);
+  // Filter for DIXON location client-side (moved from OData query to avoid BC view issues)
+  const dixonOrders = withPriority.filter(order => {
+    const bcOrder = bcOrders.find(o => o.SystemId === order.id);
+    return bcOrder?.LocationCode === 'DIXON';
+  });
+
+  const withoutP1 = dixonOrders.filter(order => order.priority !== 'P1');
+
+  console.log(`After transformation: ${transformed.length} total, ${withPriority.length} with valid priority, ${dixonOrders.length} DIXON orders, ${withoutP1.length} after filtering P1`);
 
   const orders = withoutP1.sort((a, b) => {
     // Sort by priority first (P2, P3, P4)
