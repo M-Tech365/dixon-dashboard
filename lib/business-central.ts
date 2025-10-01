@@ -91,7 +91,7 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   // URL encode the company name
   const companyName = encodeURIComponent(companyId);
 
-  const apiUrl = `${baseUrl}/${tenantId}/${environment}/ODataV4/Company('${companyName}')/Sales_Order_VT`;
+  const apiUrl = `${baseUrl}/${tenantId}/${environment}/ODataV4/Company('${companyName}')/Sales_Order_VT?$filter=LocationCode eq 'DIXON'`;
 
   console.log('Fetching from:', apiUrl);
 
@@ -112,10 +112,19 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   const bcOrders: BCSalesOrder[] = data.value || [];
 
   // Transform BC orders to our format and filter
+  const priorityOrder = { 'P2': 1, 'P3': 2, 'P4': 3, 'P1': 4 };
+
   const orders = bcOrders
     .map(transformBCOrder)
     .filter(order => order.priority !== 'P1') // Filter out P1 orders
-    .sort((a, b) => new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime());
+    .sort((a, b) => {
+      // Sort by priority first (P2, P3, P4)
+      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (priorityDiff !== 0) return priorityDiff;
+
+      // Then by creation date (oldest first within each priority)
+      return new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime();
+    });
 
   return orders;
 }
