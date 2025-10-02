@@ -62,6 +62,17 @@ export async function getAccessToken(): Promise<string> {
   console.log('Token expires in:', data.expires_in, 'seconds');
   console.log('Token preview:', data.access_token.substring(0, 50) + '...');
 
+  // Decode token to inspect claims (for debugging)
+  try {
+    const tokenParts = data.access_token.split('.');
+    const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+    console.log('Token roles:', payload.roles);
+    console.log('Token aud:', payload.aud);
+    console.log('Token appid:', payload.appid);
+  } catch (e) {
+    console.error('Could not decode token:', e);
+  }
+
   // Cache the token with a buffer of 5 minutes before expiry
   cachedToken = {
     token: data.access_token,
@@ -113,17 +124,28 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   // URL encode the company name
   const companyName = encodeURIComponent(companyId);
 
-  // Fetch all orders - filter client-side to avoid BC OData view issues
-  const apiUrl = `${baseUrl}/${tenantId}/${environment}/ODataV4/Company('${companyName}')/Sales_Order_VT`;
+  // Try standard API first, then fall back to custom OData
+  const useStandardApi = process.env.BC_USE_STANDARD_API === 'true';
+
+  const apiUrl = useStandardApi
+    ? `${baseUrl}/${tenantId}/${environment}/api/v2.0/companies(${companyName})/salesOrders`
+    : `${baseUrl}/${tenantId}/${environment}/ODataV4/Company('${companyName}')/Sales_Order_VT`;
 
   console.log('Fetching from:', apiUrl);
   console.log('Using token preview:', accessToken.substring(0, 50) + '...');
 
+  const headers = {
+    'Authorization': `Bearer ${accessToken}`,
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  };
+
+  console.log('Request headers:', JSON.stringify(headers, null, 2));
+
   const response = await fetch(apiUrl, {
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/json'
-    }
+    method: 'GET',
+    headers,
+    cache: 'no-store'
   });
 
   if (!response.ok) {
