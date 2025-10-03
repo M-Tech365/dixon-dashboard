@@ -19,18 +19,18 @@ export function PriorityFilter({ selectedPriorities, onPriorityChange, onRefresh
   };
 
   return (
-    <div className="flex gap-8 items-center justify-between flex-wrap">
-      <div className="flex gap-4 items-center">
-        <span className="text-lg font-semibold text-gray-700">Filter by Priority:</span>
+    <div className="flex gap-12 items-center justify-between flex-wrap">
+      <div className="flex gap-8 items-center">
+        <span className="text-3xl font-bold text-gray-700">Filter by Priority:</span>
         {priorities.map(priority => (
-          <label key={priority} className="flex items-center gap-2 cursor-pointer">
+          <label key={priority} className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={selectedPriorities.includes(priority)}
               onChange={() => handlePriorityToggle(priority)}
-              className="w-6 h-6 text-blue-600 rounded focus:ring-blue-500"
+              className="w-8 h-8 text-blue-600 rounded focus:ring-blue-500"
             />
-            <span className="text-lg font-medium text-gray-700">{priority}</span>
+            <span className="text-2xl font-semibold text-gray-700">{priority}</span>
           </label>
         ))}
       </div>
@@ -38,10 +38,10 @@ export function PriorityFilter({ selectedPriorities, onPriorityChange, onRefresh
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="px-6 py-3 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-3 font-semibold"
+          className="px-10 py-5 bg-blue-600 text-white text-2xl rounded-xl hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-4 font-bold shadow-lg"
         >
           <svg
-            className={`w-6 h-6 ${isRefreshing ? 'animate-spin' : ''}`}
+            className={`w-8 h-8 ${isRefreshing ? 'animate-spin' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
