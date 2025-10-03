@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { fetchSalesOrders } from '@/lib/business-central';
 import { SalesOrder } from '@/types/sales-order';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Mock data for development/fallback
 const mockOrders: SalesOrder[] = [
   {
