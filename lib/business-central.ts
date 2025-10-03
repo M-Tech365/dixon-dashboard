@@ -1,4 +1,6 @@
 import { BCSalesOrder, SalesOrder } from '@/types/sales-order';
+import { ClientCertificateCredential } from '@azure/identity';
+import { join } from 'path';
 
 interface TokenResponse {
   access_token: string;
@@ -17,54 +19,114 @@ export async function getAccessToken(): Promise<string> {
 
   const tenantId = process.env.BC_TENANT_ID;
   const clientId = process.env.BC_CLIENT_ID;
-  const clientSecret = process.env.BC_CLIENT_SECRET;
+  const useCertAuth = process.env.BC_USE_CERT_AUTH === 'true';
   const scope = process.env.BC_SCOPE || 'https://api.businesscentral.dynamics.com/.default';
 
   console.log('Getting new access token...');
   console.log('Tenant ID:', tenantId);
   console.log('Client ID:', clientId);
-  console.log('Client Secret present:', !!clientSecret);
+  console.log('Auth method:', useCertAuth ? 'Certificate' : 'Client Secret');
   console.log('Scope:', scope);
 
-  if (!tenantId || !clientId || !clientSecret) {
-    throw new Error('Business Central credentials not configured');
+  if (!tenantId || !clientId) {
+    throw new Error('Business Central tenant ID and client ID not configured');
   }
 
-  const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+  let accessToken: string;
 
-  const params = new URLSearchParams({
-    grant_type: 'client_credentials',
-    client_id: clientId,
-    client_secret: clientSecret,
-    scope: scope
-  });
+  if (useCertAuth) {
+    // Certificate-based authentication
+    let certPath: string;
 
-  console.log('Token URL:', tokenUrl);
+    // In production (Vercel), use environment variable
+    // In development, use local file
+    if (process.env.BC_CERTIFICATE) {
+      console.log('Using certificate from environment variable');
+      // Write cert from env var to temp file
+      const fs = require('fs');
+      const os = require('os');
+      certPath = join(os.tmpdir(), 'bc-cert.pem');
+      fs.writeFileSync(certPath, process.env.BC_CERTIFICATE);
+    } else {
+      certPath = join(process.cwd(), 'bc-combined.pem');
+      console.log('Using certificate from:', certPath);
+    }
 
-  const response = await fetch(tokenUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: params.toString()
-  });
+    const credential = new ClientCertificateCredential(
+      tenantId,
+      clientId,
+      certPath
+    );
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Token error response:', errorText);
-    console.error('Response status:', response.status, response.statusText);
-    throw new Error(`Failed to get access token: ${response.statusText}`);
+    const tokenResponse = await credential.getToken(scope);
+
+    if (!tokenResponse) {
+      throw new Error('Failed to get access token using certificate');
+    }
+
+    accessToken = tokenResponse.token;
+
+    console.log('Certificate authentication successful');
+    console.log('Token expires at:', new Date(tokenResponse.expiresOnTimestamp));
+    console.log('Token preview:', accessToken.substring(0, 50) + '...');
+
+    // Cache the token with a buffer of 5 minutes before expiry
+    cachedToken = {
+      token: accessToken,
+      expiresAt: tokenResponse.expiresOnTimestamp - 300000 // 5 min buffer
+    };
+  } else {
+    // Client secret authentication (fallback)
+    const clientSecret = process.env.BC_CLIENT_SECRET;
+
+    if (!clientSecret) {
+      throw new Error('Business Central client secret not configured');
+    }
+
+    const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+
+    const params = new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: scope
+    });
+
+    console.log('Token URL:', tokenUrl);
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params.toString()
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Token error response:', errorText);
+      console.error('Response status:', response.status, response.statusText);
+      throw new Error(`Failed to get access token: ${response.statusText}`);
+    }
+
+    const data: TokenResponse = await response.json();
+
+    console.log('Token obtained successfully');
+    console.log('Token expires in:', data.expires_in, 'seconds');
+    console.log('Token preview:', data.access_token.substring(0, 50) + '...');
+
+    accessToken = data.access_token;
+
+    // Cache the token with a buffer of 5 minutes before expiry
+    cachedToken = {
+      token: data.access_token,
+      expiresAt: Date.now() + (data.expires_in - 300) * 1000
+    };
   }
-
-  const data: TokenResponse = await response.json();
-
-  console.log('Token obtained successfully');
-  console.log('Token expires in:', data.expires_in, 'seconds');
-  console.log('Token preview:', data.access_token.substring(0, 50) + '...');
 
   // Decode token to inspect claims (for debugging)
   try {
-    const tokenParts = data.access_token.split('.');
+    const tokenParts = accessToken.split('.');
     const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
     console.log('Token roles:', payload.roles);
     console.log('Token aud:', payload.aud);
@@ -73,13 +135,7 @@ export async function getAccessToken(): Promise<string> {
     console.error('Could not decode token:', e);
   }
 
-  // Cache the token with a buffer of 5 minutes before expiry
-  cachedToken = {
-    token: data.access_token,
-    expiresAt: Date.now() + (data.expires_in - 300) * 1000
-  };
-
-  return data.access_token;
+  return accessToken;
 }
 
 export function transformBCOrder(bcOrder: BCSalesOrder): SalesOrder | null {
