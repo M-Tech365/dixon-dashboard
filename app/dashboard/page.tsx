@@ -54,8 +54,8 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-100">
       {lastRefresh && <DashboardHeader lastRefresh={lastRefresh} isRefreshing={isRefreshing} />}
 
-      <div className="w-full px-8 py-8">
-        <div className="mb-8 bg-white p-8 rounded-2xl shadow-xl">
+      <div className="w-full px-[2vw] py-[2vh]">
+        <div className="mb-[2vh] bg-white p-[2vw] rounded-2xl shadow-xl">
           <PriorityFilter
             selectedPriorities={selectedPriorities}
             onPriorityChange={setSelectedPriorities}
@@ -65,13 +65,13 @@ export default function DashboardPage() {
         </div>
 
         {filteredOrders.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-xl p-16 text-center">
-            <p className="text-gray-500 text-4xl font-semibold">
+          <div className="bg-white rounded-2xl shadow-xl p-[4vw] text-center">
+            <p className="text-gray-500 text-[2.5vw] font-semibold">
               {isRefreshing ? 'Loading orders...' : 'No orders found with selected priorities'}
             </p>
           </div>
         ) : (
-          <div className="grid gap-10 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-[2vw] lg:grid-cols-2 xl:grid-cols-3">
             {filteredOrders.map(order => (
               <OrderCard key={order.id} order={order} />
             ))}
