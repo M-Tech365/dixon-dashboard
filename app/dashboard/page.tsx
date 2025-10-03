@@ -54,7 +54,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-100">
       {lastRefresh && <DashboardHeader lastRefresh={lastRefresh} isRefreshing={isRefreshing} />}
 
-      <div className="mx-auto px-6 py-6 max-w-[98vw]">
+      <div className="w-full px-6 py-6">
         <div className="mb-6 bg-white p-6 rounded-lg shadow">
           <PriorityFilter
             selectedPriorities={selectedPriorities}
