@@ -54,8 +54,8 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-100">
       {lastRefresh && <DashboardHeader lastRefresh={lastRefresh} isRefreshing={isRefreshing} />}
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6 bg-white p-4 rounded-lg shadow">
+      <div className="mx-auto px-6 py-6 max-w-[98vw]">
+        <div className="mb-6 bg-white p-6 rounded-lg shadow">
           <PriorityFilter
             selectedPriorities={selectedPriorities}
             onPriorityChange={setSelectedPriorities}
@@ -71,7 +71,7 @@ export default function DashboardPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {filteredOrders.map(order => (
               <OrderCard key={order.id} order={order} />
             ))}

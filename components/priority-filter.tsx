@@ -19,7 +19,7 @@ export function PriorityFilter({ selectedPriorities, onPriorityChange, onRefresh
   };
 
   return (
-    <div className="flex gap-4 items-center justify-between">
+    <div className="flex gap-6 items-center justify-between flex-wrap">
       <div className="flex gap-2 items-center">
         <span className="text-sm font-medium text-gray-700">Filter by Priority:</span>
         {priorities.map(priority => (
