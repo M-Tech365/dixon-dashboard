@@ -245,10 +245,10 @@ export async function fetchSalesOrders(): Promise<SalesOrder[]> {
   const transformed = bcOrders.map(transformBCOrder);
   const withPriority = transformed.filter((order): order is SalesOrder => order !== null);
 
-  // Filter for DIXON location client-side (moved from OData query to avoid BC view issues)
+  // Filter for DIXON location and SHOP shipping agent client-side (moved from OData query to avoid BC view issues)
   const dixonOrders = withPriority.filter(order => {
     const bcOrder = bcOrders.find(o => o.SystemId === order.id);
-    return bcOrder?.LocationCode === 'DIXON';
+    return bcOrder?.LocationCode === 'DIXON' && bcOrder?.ShippingAgentCode === 'SHOP';
   });
 
   const withoutP1 = dixonOrders.filter(order => order.priority !== 'P1');
