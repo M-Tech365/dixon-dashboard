@@ -19,18 +19,18 @@ export function PriorityFilter({ selectedPriorities, onPriorityChange, onRefresh
   };
 
   return (
-    <div className="flex gap-6 items-center justify-between flex-wrap">
-      <div className="flex gap-2 items-center">
-        <span className="text-sm font-medium text-gray-700">Filter by Priority:</span>
+    <div className="flex gap-8 items-center justify-between flex-wrap">
+      <div className="flex gap-4 items-center">
+        <span className="text-lg font-semibold text-gray-700">Filter by Priority:</span>
         {priorities.map(priority => (
-          <label key={priority} className="flex items-center gap-1 cursor-pointer">
+          <label key={priority} className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={selectedPriorities.includes(priority)}
               onChange={() => handlePriorityToggle(priority)}
-              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              className="w-6 h-6 text-blue-600 rounded focus:ring-blue-500"
             />
-            <span className="text-sm text-gray-700">{priority}</span>
+            <span className="text-lg font-medium text-gray-700">{priority}</span>
           </label>
         ))}
       </div>
@@ -38,10 +38,10 @@ export function PriorityFilter({ selectedPriorities, onPriorityChange, onRefresh
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="px-6 py-3 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-3 font-semibold"
         >
           <svg
-            className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
+            className={`w-6 h-6 ${isRefreshing ? 'animate-spin' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

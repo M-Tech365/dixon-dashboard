@@ -19,7 +19,7 @@ export function PriorityBadge({ priority }: PriorityBadgeProps) {
   };
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStyles()}`}>
+    <span className={`px-6 py-3 rounded-full text-2xl font-bold ${getStyles()}`}>
       {priority}
     </span>
   );
