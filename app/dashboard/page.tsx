@@ -55,15 +55,6 @@ export default function DashboardPage() {
       {lastRefresh && <DashboardHeader lastRefresh={lastRefresh} isRefreshing={isRefreshing} />}
 
       <div className="w-full px-[2vw] py-[2vh]">
-        <div className="mb-[2vh] bg-white p-[2vw] rounded-2xl shadow-xl">
-          <PriorityFilter
-            selectedPriorities={selectedPriorities}
-            onPriorityChange={setSelectedPriorities}
-            onRefresh={fetchOrders}
-            isRefreshing={isRefreshing}
-          />
-        </div>
-
         {filteredOrders.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-xl p-[4vw] text-center">
             <p className="text-gray-500 text-[2.5vw] font-semibold">

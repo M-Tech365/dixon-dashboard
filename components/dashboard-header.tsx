@@ -15,26 +15,26 @@ export function DashboardHeader({ lastRefresh, isRefreshing }: DashboardHeaderPr
   };
 
   return (
-    <div className="bg-white text-gray-800 p-[2vh] shadow-lg border-b">
-      <div className="flex flex-col items-center gap-[1.5vh]">
+    <div className="bg-white text-gray-800 p-[1vh] shadow-lg border-b">
+      <div className="flex items-center justify-between px-[2vw]">
         <Image
           src="/CFITireLogo.svg"
           alt="CFI Tire Logo"
           width={200}
           height={200}
-          className="w-[12vw] h-auto max-w-[300px]"
+          className="w-[6vw] h-auto max-w-[120px]"
         />
-        <div className="text-center">
-          <h1 className="text-[5vw] font-bold leading-tight">Priority Dashboard</h1>
-          <p className="text-[2vw] text-gray-600 mt-[1vh]">Business Central Sales Orders (P2-P4)</p>
+        <div className="text-center flex-1">
+          <h1 className="text-[3vw] font-bold leading-tight">Priority Dashboard</h1>
+          <p className="text-[1.2vw] text-gray-600">Business Central Sales Orders (P2-P4)</p>
         </div>
-        <div className="text-center">
+        <div className="text-right">
           {lastRefresh && (
-            <p className="text-[1.5vw] text-gray-600">
+            <p className="text-[1vw] text-gray-600">
               Last Updated: {formatTime(lastRefresh)}
             </p>
           )}
-          <p className="text-[1.2vw] text-gray-500 mt-[0.5vh]">
+          <p className="text-[0.8vw] text-gray-500">
             {isRefreshing ? 'Refreshing...' : 'Auto-refresh every 5 minutes'}
           </p>
         </div>
